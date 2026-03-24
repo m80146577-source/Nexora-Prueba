@@ -76,6 +76,14 @@ app.post("/login", async (req, res) => {
 ========================= */
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "login.html"));
+
+    app.get("/add-role", async (req, res) => {
+    try {
+        await pool.query("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+        res.send("✅ Columna 'role' creada");
+    } catch (err) {
+        res.send("⚠️ Puede que ya exista la columna");
+    } 
 });
 
 /* =========================
