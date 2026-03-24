@@ -104,11 +104,22 @@
 <script>
 const API = "";
 
+// 🔥 SI YA ESTÁ LOGUEADO
+const savedUser = JSON.parse(localStorage.getItem("user"));
+
+if (savedUser) {
+    if (savedUser.role === "admin") {
+        window.location.href = "/admin.html";
+    }
+}
+
+// CAMBIAR ENTRE LOGIN / REGISTER
 function toggle() {
     document.getElementById("registerBox").classList.toggle("hidden");
     document.getElementById("loginBox").classList.toggle("hidden");
 }
 
+// REGISTRO
 async function register() {
     const username = document.getElementById("regUsername").value;
     const email = document.getElementById("regEmail").value;
@@ -121,9 +132,12 @@ async function register() {
     });
 
     const data = await res.json();
-    document.getElementById("mensaje").innerText = data.message || (data.success ? "Cuenta creada 🎉" : "Error");
+
+    document.getElementById("mensaje").innerText =
+        data.success ? "Cuenta creada 🎉" : data.message;
 }
 
+// LOGIN
 async function login() {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
@@ -137,8 +151,17 @@ async function login() {
     const data = await res.json();
 
     if (data.success) {
-        document.getElementById("mensaje").innerText = "Bienvenido " + data.username;
-        window.location.href = "/index";
+
+        // 🔥 GUARDAR SESIÓN
+        localStorage.setItem("user", JSON.stringify(data));
+
+        if (data.role === "admin") {
+            window.location.href = "/admin.html";
+        } else {
+            document.getElementById("mensaje").innerText =
+                "Bienvenido " + data.username + " (no eres admin)";
+        }
+
     } else {
         document.getElementById("mensaje").innerText = data.message;
     }
