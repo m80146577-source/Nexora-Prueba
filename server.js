@@ -38,6 +38,20 @@ app.get("/add-role", async (req, res) => {
 });
 
 /* =========================
+    HACER ADMIN (TEMPORAL)
+========================= */
+app.get("/make-admin", async (req, res) => {
+    try {
+        await pool.query(
+            "UPDATE users SET role = 'admin' WHERE email = 'm80146577@gmail.com'"
+        );
+        res.send("🔥 Ahora eres admin");
+    } catch (err) {
+        res.send("Error al hacer admin");
+    }
+});
+
+/* =========================
     VER USUARIOS
 ========================= */
 app.get("/users", async (req, res) => {
