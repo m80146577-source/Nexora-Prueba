@@ -8,59 +8,98 @@
             font-family: Arial;
             background: linear-gradient(135deg, #0f172a, #020617);
             color: white;
-            text-align: center;
             margin: 0;
         }
 
-        h1 {
-            margin-top: 20px;
+        h1, h2 {
+            margin: 10px 0;
         }
 
         .top {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 20px;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
-            background: #1e293b;
-            padding: 15px;
-            border-radius: 10px;
-            width: 120px;
-        }
-
-        .card {
-            background: #1e293b;
-            margin: 10px auto;
-            padding: 15px;
-            width: 320px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background: red;
-            color: white;
-            cursor: pointer;
         }
 
         .logout {
             background: #ef4444;
         }
 
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            width: 140px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
         .section {
-            margin-top: 30px;
+            padding: 0 20px;
+        }
+
+        /* GRID USUARIOS */
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+        .role-admin {
+            color: #facc15;
+        }
+
+        .role-user {
+            color: #38bdf8;
+        }
+
+        button {
+            margin: 5px;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-delete { background: #ef4444; }
+        .btn-admin { background: #f59e0b; }
+        .btn-user { background: #3b82f6; }
+        .btn-pro { background: #22c55e; }
+        .btn-basic { background: #64748b; }
+
+        /* LOGS */
+        .logs {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .log {
+            background: #1e293b;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            text-align: left;
         }
     </style>
 </head>
@@ -80,29 +119,29 @@ if (!user || user.role !== "admin") {
     <button class="logout" onclick="logout()">Cerrar sesión</button>
 </div>
 
-<!-- 📊 STATS -->
+<!-- STATS -->
 <div class="stats">
     <div class="stat-box">
-        <h3 id="totalUsers">0</h3>
+        <h2 id="totalUsers">0</h2>
         <p>Usuarios</p>
     </div>
 
     <div class="stat-box">
-        <h3 id="totalLogs">0</h3>
+        <h2 id="totalLogs">0</h2>
         <p>Eventos</p>
     </div>
 </div>
 
-<!-- 👥 USUARIOS -->
+<!-- USUARIOS -->
 <div class="section">
-    <h2>👥 Usuarios registrados</h2>
-    <div id="users"></div>
+    <h2>👥 Usuarios</h2>
+    <div id="users" class="users-grid"></div>
 </div>
 
-<!-- 📊 LOGS -->
+<!-- LOGS -->
 <div class="section">
-    <h2>📊 Actividad reciente</h2>
-    <div id="logs"></div>
+    <h2>📊 Actividad</h2>
+    <div id="logs" class="logs"></div>
 </div>
 
 <script>
@@ -126,14 +165,66 @@ async function loadUsers() {
             <div class="card">
                 <h3>${u.username}</h3>
                 <p>${u.email}</p>
-                <p>Rol: ${u.role}</p>
-                <button onclick="deleteUser(${u.id})">Eliminar</button>
+
+                <p class="${u.role === "admin" ? "role-admin" : "role-user"}">
+                    Rol: ${u.role}
+                </p>
+
+                <p>Permiso: ${u.permissions || "basic"}</p>
+
+                <div>
+                    <button class="btn-admin" onclick="makeAdmin(${u.id})">Admin</button>
+                    <button class="btn-user" onclick="makeUser(${u.id})">User</button>
+                </div>
+
+                <div>
+                    <button class="btn-pro" onclick="setPro(${u.id})">PRO</button>
+                    <button class="btn-basic" onclick="setBasic(${u.id})">Basic</button>
+                </div>
+
+                <button class="btn-delete" onclick="deleteUser(${u.id})">Eliminar</button>
             </div>
         `;
     });
 }
 
-// ELIMINAR
+// FUNCIONES
+async function makeAdmin(id) {
+    await fetch("/set-role", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ id, role: "admin" })
+    });
+    loadUsers();
+}
+
+async function makeUser(id) {
+    await fetch("/set-role", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ id, role: "user" })
+    });
+    loadUsers();
+}
+
+async function setPro(id) {
+    await fetch("/set-permissions", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ id, permissions: "pro" })
+    });
+    loadUsers();
+}
+
+async function setBasic(id) {
+    await fetch("/set-permissions", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ id, permissions: "basic" })
+    });
+    loadUsers();
+}
+
 async function deleteUser(id) {
     await fetch("/delete-user", {
         method: "POST",
@@ -145,7 +236,7 @@ async function deleteUser(id) {
     loadLogs();
 }
 
-// CARGAR LOGS
+// LOGS
 async function loadLogs() {
     const res = await fetch("/admin/logs");
     const data = await res.json();
@@ -157,16 +248,16 @@ async function loadLogs() {
 
     data.slice(0, 10).forEach(log => {
         div.innerHTML += `
-            <div class="card">
-                <p><b>${log.email}</b></p>
-                <p>${log.action}</p>
+            <div class="log">
+                <b>${log.email}</b><br>
+                ${log.action}<br>
                 <small>${new Date(log.created_at).toLocaleString()}</small>
             </div>
         `;
     });
 }
 
-// 🔄 AUTO ACTUALIZACIÓN
+// AUTO REFRESH
 setInterval(() => {
     loadUsers();
     loadLogs();
