@@ -31,7 +31,19 @@
 </head>
 <body>
 
+<script>
+// 🔒 PROTECCIÓN ADMIN
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user || user.role !== "admin") {
+    alert("Acceso denegado");
+    window.location.href = "/";
+}
+</script>
+
 <h1>👑 Panel Admin</h1>
+
+<button onclick="logout()">Cerrar sesión</button>
 
 <h2>👥 Usuarios</h2>
 <div id="users"></div>
@@ -40,6 +52,11 @@
 <div id="logs"></div>
 
 <script>
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "/";
+}
+
 async function loadUsers() {
     const res = await fetch("/admin/users");
     const data = await res.json();
@@ -62,7 +79,7 @@ async function loadUsers() {
 async function deleteUser(id) {
     await fetch("/delete-user", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ id })
     });
 
