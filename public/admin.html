@@ -3,36 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Admin | Database Live</title>
+    <title>Enterprise Admin Console | Database Management</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         :root {
-            --bg-dark: #020617;
+            --bg-main: #020617;
             --bg-card: #0f172a;
             --accent: #3b82f6;
             --border: #1e293b;
-            --text: #f8fafc;
+            --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --danger: #ef4444;
             --success: #22c55e;
+            --warning: #f59e0b;
         }
 
+        * { box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
+            background-color: var(--bg-main);
+            color: var(--text-main);
             margin: 0;
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* SIDEBAR */
+        /* --- SIDEBAR --- */
         .sidebar {
-            width: 260px;
+            width: 280px;
             background: #000;
             border-right: 1px solid var(--border);
             display: flex;
@@ -40,7 +43,18 @@
             padding: 24px;
         }
 
-        .nav-link {
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -50,182 +64,212 @@
             border-radius: 8px;
             transition: 0.2s;
             margin-bottom: 5px;
+            font-weight: 500;
         }
 
-        .nav-link.active, .nav-link:hover {
+        .nav-item.active, .nav-item:hover {
             background: var(--bg-card);
             color: white;
         }
 
-        /* MAIN */
-        .main {
+        /* --- CONTENIDO PRINCIPAL --- */
+        .main-content {
             flex: 1;
             padding: 40px;
             overflow-y: auto;
         }
 
-        .header {
+        .header-panel {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
 
-        /* TABLE */
-        .table-container {
+        /* --- TABLA ENTERPRISE --- */
+        .data-wrapper {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            text-align: left;
         }
 
         th {
-            text-align: left;
-            padding: 16px;
             background: #111b2d;
+            padding: 18px;
             font-size: 0.75rem;
             text-transform: uppercase;
             color: var(--text-dim);
+            letter-spacing: 0.05em;
         }
 
         td {
-            padding: 16px;
+            padding: 18px;
             border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
         }
 
-        /* BADGES */
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* --- COMPONENTES --- */
         .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
         }
-        .badge-admin { background: #fef3c7; color: #92400e; }
-        .badge-user { background: #dbeafe; color: #1e40af; }
+        .badge-admin { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid var(--warning); }
+        .badge-user { background: rgba(59, 130, 246, 0.1); color: var(--accent); border: 1px solid var(--accent); }
 
-        /* BUTTONS */
         .btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
             cursor: pointer;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             transition: 0.2s;
+            background: #1e293b;
+            color: white;
         }
-        .btn:hover { opacity: 0.9; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); }
 
-        /* LOADER */
-        #loader { text-align: center; padding: 40px; color: var(--accent); }
+        .btn:hover { background: var(--accent); border-color: var(--accent); }
+
+        .btn-delete {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        #loader {
+            padding: 50px;
+            text-align: center;
+            color: var(--text-dim);
+        }
+
+        /* Estilos para SweetAlert */
+        .swal2-popup { background: var(--bg-card) !important; color: white !important; border: 1px solid var(--border) !important; }
+        .swal2-title { color: white !important; }
+        .swal2-select { background: var(--bg-main) !important; color: white !important; border: 1px solid var(--border) !important; }
     </style>
 </head>
 <body>
 
 <aside class="sidebar">
-    <div style="font-weight: 800; font-size: 1.2rem; margin-bottom: 40px; color: var(--accent);">
-        DB MANAGER PRO
+    <div class="logo">
+        <i data-lucide="shield-check"></i> ADMIN CORE
     </div>
+    
     <nav>
-        <a href="#" class="nav-link active"><i data-lucide="database"></i> Base de Datos</a>
-        <a href="#" class="nav-link"><i data-lucide="settings"></i> Configuración</a>
+        <a href="#" class="nav-item active"><i data-lucide="users"></i> Usuarios</a>
+        <a href="#" class="nav-item"><i data-lucide="activity"></i> Auditoría</a>
+        <a href="#" class="nav-item"><i data-lucide="database"></i> Base de Datos</a>
     </nav>
-    <button onclick="location.reload()" class="btn btn-outline" style="margin-top: auto;">
-        <i data-lucide="refresh-cw"></i> Refrescar DB
+
+    <button class="btn btn-delete" style="margin-top: auto; justify-content: center;" onclick="logout()">
+        <i data-lucide="log-out"></i> Cerrar Sesión
     </button>
 </aside>
 
-<main class="main">
-    <div class="header">
+<main class="main-content">
+    <div class="header-panel">
         <div>
-            <h1 style="margin: 0;">Usuarios en Base de Datos</h1>
-            <p style="color: var(--text-dim);">Visualización en tiempo real de la tabla `users`</p>
+            <h1 style="margin: 0;">Gestión de Cuentas</h1>
+            <p style="color: var(--text-dim); margin-top: 5px;">Control total sobre los registros de la base de datos.</p>
         </div>
-        <div id="db-status" class="badge" style="background: var(--success); color: #fff;">DB Conectada</div>
+        <button class="btn" onclick="fetchDatabase()">
+            <i data-lucide="refresh-cw"></i> Actualizar Lista
+        </button>
     </div>
 
-    <div class="table-container">
+    <div class="data-wrapper">
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Usuario</th>
+                    <th>Nombre de Usuario</th>
                     <th>Email</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
+                    <th>Rol de Acceso</th>
+                    <th style="text-align: right;">Acciones de Administrador</th>
                 </tr>
             </thead>
             <tbody id="userTable">
                 </tbody>
         </table>
-        <div id="loader">Cargando datos desde el servidor...</div>
+        <div id="loader">Conectando con la base de datos...</div>
     </div>
 </main>
 
 <script>
+    // Inicializar iconos
     lucide.createIcons();
 
-    // 1. CONFIGURACIÓN DE LA URL DE TU API
-    // Cambia esto por la ruta real de tu backend (ej. /api/get_users.php o /users)
-    const API_URL = "/admin/users"; 
-
+    // 1. CARGAR DATOS (Lectura Real)
     async function fetchDatabase() {
         const tableBody = document.getElementById('userTable');
         const loader = document.getElementById('loader');
 
         try {
-            const response = await fetch(API_URL);
-            
-            if (!response.ok) throw new Error("No se pudo conectar con la API");
+            // Reemplaza esta URL con tu endpoint real de Node/PHP
+            const response = await fetch('/admin/users'); 
+            const users = await response.json();
 
-            const data = await response.json();
-            
-            // Limpiar tabla y ocultar loader
-            tableBody.innerHTML = "";
-            loader.style.display = "none";
+            loader.style.display = 'none';
+            tableBody.innerHTML = '';
 
-            if (data.length === 0) {
-                tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center'>No hay registros en la base de datos.</td></tr>";
+            if (users.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center">No hay registros encontrados.</td></tr>';
                 return;
             }
 
-            // Inyectar datos reales
-            data.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><span style="color:var(--text-dim)">#${user.id}</span></td>
-                    <td><strong>${user.username}</strong></td>
-                    <td>${user.email}</td>
-                    <td><span class="badge badge-${user.role}">${user.role}</span></td>
-                    <td>
-                        <button class="btn" onclick="modifyRole(${user.id}, '${user.role}')">
-                            <i data-lucide="edit-2" style="width:14px"></i> Modificar
-                        </button>
-                    </td>
+            users.forEach(user => {
+                const row = `
+                    <tr>
+                        <td><span style="color: var(--text-dim)">#${user.id}</span></td>
+                        <td><strong>${user.username}</strong></td>
+                        <td>${user.email}</td>
+                        <td><span class="badge badge-${user.role}">${user.role}</span></td>
+                        <td style="text-align: right;">
+                            <button class="btn" onclick="modifyRole(${user.id}, '${user.role}')">
+                                <i data-lucide="user-cog" style="width:14px"></i> Rol
+                            </button>
+                            <button class="btn btn-delete" onclick="deleteAccount(${user.id}, '${user.username}')">
+                                <i data-lucide="trash-2" style="width:14px"></i> Borrar
+                            </button>
+                        </td>
+                    </tr>
                 `;
-                tableBody.appendChild(row);
+                tableBody.insertAdjacentHTML('beforeend', row);
             });
-            
+
             lucide.createIcons();
 
         } catch (error) {
-            loader.innerHTML = `<span style="color:var(--danger)">⚠️ Error: ${error.message}</span>`;
-            document.getElementById('db-status').style.background = 'var(--danger)';
-            document.getElementById('db-status').innerText = 'Desconectado';
+            loader.innerHTML = '<span style="color:var(--danger)">⚠️ Error de conexión con el servidor</span>';
+            console.error(error);
         }
     }
 
-    // 2. FUNCIÓN PARA MODIFICAR ROL EN LA DB
+    // 2. MODIFICAR ROL (Update)
     async function modifyRole(id, currentRole) {
         const { value: newRole } = await Swal.fire({
-            title: 'Cambiar Rol',
+            title: 'Cambiar Privilegios',
             input: 'select',
             inputOptions: {
                 'admin': 'Administrador',
@@ -233,21 +277,21 @@
             },
             inputValue: currentRole,
             showCancelButton: true,
-            background: '#0f172a',
-            color: '#fff'
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar'
         });
 
         if (newRole && newRole !== currentRole) {
             try {
-                const res = await fetch('/set-role', { // Tu endpoint para guardar
+                const res = await fetch('/set-role', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id, role: newRole })
                 });
 
                 if (res.ok) {
-                    Swal.fire('¡Actualizado!', 'La base de datos ha sido modificada.', 'success');
-                    fetchDatabase(); // Recargar datos
+                    Swal.fire({ icon: 'success', title: 'Rol Actualizado', background: '#0f172a', color: '#fff', timer: 1500, showConfirmButton: false });
+                    fetchDatabase();
                 }
             } catch (err) {
                 Swal.fire('Error', 'No se pudo guardar el cambio.', 'error');
@@ -255,7 +299,42 @@
         }
     }
 
-    // Cargar al iniciar
+    // 3. BORRAR CUENTA (Delete)
+    async function deleteAccount(id, username) {
+        const result = await Swal.fire({
+            title: '¿Confirmar eliminación?',
+            text: `Borrarás permanentemente a "${username}" de la base de datos.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Sí, borrar cuenta',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch('/delete-user', {
+                    method: 'POST', // O DELETE según tu backend
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+
+                if (response.ok) {
+                    Swal.fire({ icon: 'success', title: 'Usuario Eliminado', background: '#0f172a', color: '#fff', timer: 1500, showConfirmButton: false });
+                    fetchDatabase();
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Hubo un fallo al intentar borrar el registro.', 'error');
+            }
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "/";
+    }
+
+    // Carga inicial
     fetchDatabase();
 </script>
 
