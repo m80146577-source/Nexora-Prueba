@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
 `);
 
 /* =========================
-    HACER ADMIN + CREAR ROLE
+    HACER ADMIN (TEMPORAL)
 ========================= */
 app.get("/make-admin", async (req, res) => {
     try {
@@ -48,11 +48,11 @@ app.get("/make-admin", async (req, res) => {
 });
 
 /* =========================
-    VER USUARIOS (ANTI ERROR)
+    VER USUARIOS
 ========================= */
 app.get("/users", async (req, res) => {
     try {
-        const result = await pool.query("SELECT id, username, email FROM users");
+        const result = await pool.query("SELECT id, username, email, role FROM users");
         res.json(result.rows);
     } catch (err) {
         console.error(err);
@@ -65,11 +65,26 @@ app.get("/users", async (req, res) => {
 ========================= */
 app.get("/admin/users", async (req, res) => {
     try {
-        const result = await pool.query("SELECT id, username, email FROM users");
+        const result = await pool.query("SELECT id, username, email, role FROM users");
         res.json(result.rows);
     } catch (err) {
         console.error(err);
         res.json([]);
+    }
+});
+
+/* =========================
+    ELIMINAR USUARIO
+========================= */
+app.post("/delete-user", async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        await pool.query("DELETE FROM users WHERE id = $1", [id]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.json({ success: false });
     }
 });
 
