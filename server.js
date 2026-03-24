@@ -26,37 +26,51 @@ CREATE TABLE IF NOT EXISTS users (
 `);
 
 /* =========================
-    AGREGAR ROLE (TEMPORAL)
-========================= */
-app.get("/add-role", async (req, res) => {
-    try {
-        await pool.query("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
-        res.send("✅ Columna 'role' creada");
-    } catch (err) {
-        res.send("⚠️ Puede que ya exista");
-    }
-});
-
-/* =========================
-    HACER ADMIN (TEMPORAL)
+    HACER ADMIN + CREAR ROLE
 ========================= */
 app.get("/make-admin", async (req, res) => {
     try {
+        // Crear columna role si no existe
+        try {
+            await pool.query("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+        } catch (e) {}
+
+        // Hacer admin
         await pool.query(
             "UPDATE users SET role = 'admin' WHERE email = 'm80146577@gmail.com'"
         );
+
         res.send("🔥 Ahora eres admin");
     } catch (err) {
-        res.send("Error al hacer admin");
+        console.error(err);
+        res.send("Error: " + err.message);
     }
 });
 
 /* =========================
-    VER USUARIOS
+    VER USUARIOS (ANTI ERROR)
 ========================= */
 app.get("/users", async (req, res) => {
-    const result = await pool.query("SELECT id, username, email, role FROM users");
-    res.json(result.rows);
+    try {
+        const result = await pool.query("SELECT id, username, email FROM users");
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.json([]);
+    }
+});
+
+/* =========================
+    ADMIN: LISTA USUARIOS
+========================= */
+app.get("/admin/users", async (req, res) => {
+    try {
+        const result = await pool.query("SELECT id, username, email FROM users");
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.json([]);
+    }
 });
 
 /* =========================
@@ -90,31 +104,26 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
-    const result = await pool.query(
-        "SELECT * FROM users WHERE email = $1 AND password = $2",
-        [email, password]
-    );
+    try {
+        const result = await pool.query(
+            "SELECT * FROM users WHERE email = $1 AND password = $2",
+            [email, password]
+        );
 
-    if (result.rows.length === 0) {
-        return res.json({ success: false, message: "Datos incorrectos" });
+        if (result.rows.length === 0) {
+            return res.json({ success: false, message: "Datos incorrectos" });
+        }
+
+        res.json({
+            success: true,
+            username: result.rows[0].username,
+            role: result.rows[0].role || "user"
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.json({ success: false });
     }
-
-    res.json({
-        success: true,
-        username: result.rows[0].username,
-        role: result.rows[0].role
-    });
-});
-
-/* =========================
-    ADMIN: LISTA USUARIOS
-========================= */
-app.get("/admin/users", async (req, res) => {
-    const result = await pool.query(
-        "SELECT id, username, email, role FROM users"
-    );
-
-    res.json(result.rows);
 });
 
 /* =========================
