@@ -3,367 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Admin Console</title>
+    <title>Enterprise Admin | Database Live</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         :root {
-            --bg-main: #020617;
+            --bg-dark: #020617;
             --bg-card: #0f172a;
-            --bg-sidebar: #020617;
             --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
             --border: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
             --danger: #ef4444;
             --success: #22c55e;
-            --warning: #f59e0b;
         }
-
-        * { box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
+            background: var(--bg-dark);
+            color: var(--text);
             margin: 0;
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* --- SIDEBAR --- */
+        /* SIDEBAR */
         .sidebar {
-            width: 280px;
-            background: var(--bg-sidebar);
+            width: 260px;
+            background: #000;
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 24px;
         }
 
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 700;
+        .nav-link {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 48px;
-            color: var(--text-main);
-            letter-spacing: -0.025em;
-        }
-
-        .logo i { color: var(--accent); }
-
-        .nav-group { margin-bottom: 32px; }
-        .nav-label { 
-            font-size: 0.7rem; 
-            text-transform: uppercase; 
-            color: var(--text-dim); 
-            letter-spacing: 0.1em;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .nav-item {
-            padding: 10px 12px;
-            border-radius: 8px;
+            padding: 12px;
             color: var(--text-dim);
             text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s ease;
-            margin-bottom: 4px;
-            font-size: 0.9rem;
-            font-weight: 500;
+            border-radius: 8px;
+            transition: 0.2s;
+            margin-bottom: 5px;
         }
 
-        .nav-item:hover, .nav-item.active {
+        .nav-link.active, .nav-link:hover {
             background: var(--bg-card);
             color: white;
         }
-        
-        .nav-item.active { border: 1px solid var(--border); }
 
-        /* --- MAIN CONTENT --- */
-        .main-content {
+        /* MAIN */
+        .main {
             flex: 1;
-            overflow-y: auto;
             padding: 40px;
-            background-image: radial-gradient(circle at top right, #1e293b, transparent);
+            overflow-y: auto;
         }
 
-        header {
+        .header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 40px;
+            align-items: center;
+            margin-bottom: 30px;
         }
 
-        h1 { margin: 0; font-size: 1.875rem; font-weight: 700; }
-
-        .search-container { position: relative; }
-        .search-container i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-dim);
-            width: 18px;
-        }
-
-        .search-bar {
+        /* TABLE */
+        .table-container {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 12px 12px 12px 40px;
             border-radius: 12px;
-            width: 320px;
-            color: white;
-            transition: border 0.2s;
-        }
-        .search-bar:focus { outline: none; border-color: var(--accent); }
-
-        /* --- STATS --- */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            padding: 24px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-        }
-        .stat-card h3 { font-size: 0.875rem; color: var(--text-dim); margin: 0; font-weight: 500; }
-        .stat-card p { font-size: 2rem; font-weight: 700; margin: 8px 0 0 0; }
-
-        /* --- TABLE --- */
-        .data-container {
-            background: var(--bg-card);
-            border-radius: 16px;
-            border: 1px solid var(--border);
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        table { width: 100%; border-collapse: collapse; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
         th {
-            background: #111b2d;
+            text-align: left;
             padding: 16px;
-            color: var(--text-dim);
+            background: #111b2d;
             font-size: 0.75rem;
             text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.05em;
+            color: var(--text-dim);
         }
-        td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255,255,255,0.02); }
 
-        /* --- UI ELEMENTS --- */
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* BADGES */
         .badge {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
         }
-        .badge-admin { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
-        .badge-user { background: rgba(59, 130, 246, 0.1); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.2); }
-        .badge-pro { background: rgba(34, 197, 94, 0.1); color: var(--success); border: 1px solid rgba(34, 197, 94, 0.2); }
+        .badge-admin { background: #fef3c7; color: #92400e; }
+        .badge-user { background: #dbeafe; color: #1e40af; }
 
+        /* BUTTONS */
         .btn {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            background: transparent;
-            color: var(--text-main);
+            font-weight: 600;
+            transition: 0.2s;
         }
-        .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
-        .btn-primary:hover { background: var(--accent-hover); }
-        .btn-danger-soft { color: var(--danger); }
-        .btn-danger-soft:hover { background: rgba(239, 68, 68, 0.1); }
+        .btn:hover { opacity: 0.9; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); }
 
-        /* MODAL CUSTOM STYLES */
-        .swal2-popup { background: var(--bg-card) !important; color: white !important; border: 1px solid var(--border) !important; border-radius: 20px !important; }
-        .swal2-title { color: white !important; }
-        .swal2-select { background: var(--bg-main) !important; color: white !important; border: 1px solid var(--border) !important; }
+        /* LOADER */
+        #loader { text-align: center; padding: 40px; color: var(--accent); }
     </style>
 </head>
 <body>
 
 <aside class="sidebar">
-    <div class="logo"><i data-lucide="shield-check"></i> <span>ENTERPRISE OS</span></div>
-    
-    <div class="nav-group">
-        <span class="nav-label">General</span>
-        <a href="#" class="nav-item active"><i data-lucide="users"></i> Usuarios</a>
-        <a href="#" class="nav-item"><i data-lucide="bar-chart-3"></i> Analíticas</a>
+    <div style="font-weight: 800; font-size: 1.2rem; margin-bottom: 40px; color: var(--accent);">
+        DB MANAGER PRO
     </div>
-
-    <div class="nav-group">
-        <span class="nav-label">Administración</span>
-        <a href="#" class="nav-item"><i data-lucide="activity"></i> Logs Globales</a>
-        <a href="#" class="nav-item"><i data-lucide="shield-alert"></i> Seguridad</a>
-        <a href="#" class="nav-item"><i data-lucide="settings"></i> Ajustes</a>
-    </div>
-
-    <button class="btn btn-danger-soft" style="margin-top: auto; justify-content: center;" onclick="handleLogout()">
-        <i data-lucide="log-out"></i> Finalizar Sesión
+    <nav>
+        <a href="#" class="nav-link active"><i data-lucide="database"></i> Base de Datos</a>
+        <a href="#" class="nav-link"><i data-lucide="settings"></i> Configuración</a>
+    </nav>
+    <button onclick="location.reload()" class="btn btn-outline" style="margin-top: auto;">
+        <i data-lucide="refresh-cw"></i> Refrescar DB
     </button>
 </aside>
 
-<main class="main-content">
-    <header>
+<main class="main">
+    <div class="header">
         <div>
-            <h1>Gestión de Usuarios</h1>
-            <p style="color: var(--text-dim); margin: 8px 0 0 0">Administra los privilegios y roles de tu organización.</p>
+            <h1 style="margin: 0;">Usuarios en Base de Datos</h1>
+            <p style="color: var(--text-dim);">Visualización en tiempo real de la tabla `users`</p>
         </div>
-        <div class="search-container">
-            <i data-lucide="search"></i>
-            <input type="text" class="search-bar" id="userSearch" placeholder="Filtrar por nombre o email..." onkeyup="filterTable()">
-        </div>
-    </header>
-
-    <div class="stats-grid">
-        <div class="stat-card"><h3>Total Usuarios</h3><p id="totalUsers">0</p></div>
-        <div class="stat-card"><h3>Actividad Semanal</h3><p>+12.4%</p></div>
-        <div class="stat-card"><h3>Sesiones Activas</h3><p>42</p></div>
-        <div class="stat-card"><h3>Estado Sistema</h3><p style="color: var(--success); font-size: 1.2rem; display: flex; align-items: center; gap: 8px;"><span style="width:10px; height:10px; background:var(--success); border-radius:50%"></span> Operativo</p></div>
+        <div id="db-status" class="badge" style="background: var(--success); color: #fff;">DB Conectada</div>
     </div>
 
-    <div class="data-container">
+    <div class="table-container">
         <table>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Usuario</th>
-                    <th>Email Corporativo</th>
+                    <th>Email</th>
                     <th>Rol</th>
-                    <th>Plan</th>
-                    <th style="text-align: right;">Acciones</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody id="userTable"></tbody>
+            <tbody id="userTable">
+                </tbody>
         </table>
+        <div id="loader">Cargando datos desde el servidor...</div>
     </div>
 </main>
 
 <script>
     lucide.createIcons();
 
-    // Simulación de datos (En un entorno real vendrían de await apiCall())
-    let users = [
-        { id: 1, username: "Carlos Admin", email: "c.admin@empresa.com", role: "admin", permissions: "pro" },
-        { id: 2, username: "Laura Tech", email: "l.tech@empresa.com", role: "user", permissions: "pro" },
-        { id: 3, username: "Roberto B.", email: "r.basico@empresa.com", role: "user", permissions: "user" },
-    ];
+    // 1. CONFIGURACIÓN DE LA URL DE TU API
+    // Cambia esto por la ruta real de tu backend (ej. /api/get_users.php o /users)
+    const API_URL = "/admin/users"; 
 
-    function renderUsers(data = users) {
-        const tbody = document.getElementById("userTable");
-        document.getElementById("totalUsers").innerText = users.length;
-        
-        tbody.innerHTML = data.map(u => `
-            <tr>
-                <td><strong>${u.username}</strong></td>
-                <td><span style="color: var(--text-dim)">${u.email}</span></td>
-                <td><span class="badge badge-${u.role}">${u.role.toUpperCase()}</span></td>
-                <td><span class="badge badge-pro">${u.permissions.toUpperCase()}</span></td>
-                <td style="text-align: right;">
-                    <button class="btn" onclick="openEditModal(${u.id})"><i data-lucide="sliders" style="width:16px"></i> Gestionar</button>
-                    <button class="btn btn-danger-soft" onclick="confirmDelete(${u.id})"><i data-lucide="trash-2" style="width:16px"></i></button>
-                </td>
-            </tr>
-        `).join('');
-        lucide.createIcons();
-    }
+    async function fetchDatabase() {
+        const tableBody = document.getElementById('userTable');
+        const loader = document.getElementById('loader');
 
-    // MODAL DE GESTIÓN PROFESIONAL
-    async function openEditModal(id) {
-        const user = users.find(u => u.id === id);
-        
-        const { value: formValues } = await Swal.fire({
-            title: 'Configurar Privilegios',
-            html: `
-                <div style="text-align: left">
-                    <p style="margin-bottom: 20px; font-size: 0.9rem; color: #94a3b8">Modificando acceso para: <b>${user.email}</b></p>
-                    <label style="font-size: 0.8rem; color: #64748b">Rol de Sistema</label>
-                    <select id="role-select" class="swal2-select" style="width: 100%; margin: 8px 0 20px 0">
-                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Administrador</option>
-                        <option value="user" ${user.role === 'user' ? 'selected' : ''}>Usuario Estándar</option>
-                    </select>
-                    <label style="font-size: 0.8rem; color: #64748b">Nivel de Suscripción</label>
-                    <select id="perm-select" class="swal2-select" style="width: 100%; margin: 8px 0 0 0">
-                        <option value="user" ${user.permissions === 'user' ? 'selected' : ''}>Básico (Gratis)</option>
-                        <option value="pro" ${user.permissions === 'pro' ? 'selected' : ''}>Profesional (Pago)</option>
-                    </select>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Aplicar Cambios',
-            confirmButtonColor: '#3b82f6',
-            preConfirm: () => {
-                return {
-                    role: document.getElementById('role-select').value,
-                    permissions: document.getElementById('perm-select').value
-                }
-            }
-        });
-
-        if (formValues) {
-            const index = users.findIndex(u => u.id === id);
-            users[index] = { ...users[index], ...formValues };
+        try {
+            const response = await fetch(API_URL);
             
-            Swal.fire({ icon: 'success', title: 'Cambios guardados', background: '#0f172a', color: 'white', timer: 1500, showConfirmButton: false });
-            renderUsers();
+            if (!response.ok) throw new Error("No se pudo conectar con la API");
+
+            const data = await response.json();
+            
+            // Limpiar tabla y ocultar loader
+            tableBody.innerHTML = "";
+            loader.style.display = "none";
+
+            if (data.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center'>No hay registros en la base de datos.</td></tr>";
+                return;
+            }
+
+            // Inyectar datos reales
+            data.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span style="color:var(--text-dim)">#${user.id}</span></td>
+                    <td><strong>${user.username}</strong></td>
+                    <td>${user.email}</td>
+                    <td><span class="badge badge-${user.role}">${user.role}</span></td>
+                    <td>
+                        <button class="btn" onclick="modifyRole(${user.id}, '${user.role}')">
+                            <i data-lucide="edit-2" style="width:14px"></i> Modificar
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            lucide.createIcons();
+
+        } catch (error) {
+            loader.innerHTML = `<span style="color:var(--danger)">⚠️ Error: ${error.message}</span>`;
+            document.getElementById('db-status').style.background = 'var(--danger)';
+            document.getElementById('db-status').innerText = 'Desconectado';
         }
     }
 
-    // FILTRO REAL-TIME
-    function filterTable() {
-        const query = document.getElementById("userSearch").value.toLowerCase();
-        const filtered = users.filter(u => 
-            u.username.toLowerCase().includes(query) || 
-            u.email.toLowerCase().includes(query)
-        );
-        renderUsers(filtered);
-    }
-
-    async function confirmDelete(id) {
-        const res = await Swal.fire({
-            title: '¿Eliminar cuenta?',
-            text: "El usuario perderá acceso inmediato a todos los servicios.",
-            icon: 'warning',
+    // 2. FUNCIÓN PARA MODIFICAR ROL EN LA DB
+    async function modifyRole(id, currentRole) {
+        const { value: newRole } = await Swal.fire({
+            title: 'Cambiar Rol',
+            input: 'select',
+            inputOptions: {
+                'admin': 'Administrador',
+                'user': 'Usuario Estándar'
+            },
+            inputValue: currentRole,
             showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            confirmButtonText: 'Eliminar permanentemente'
+            background: '#0f172a',
+            color: '#fff'
         });
 
-        if (res.isConfirmed) {
-            users = users.filter(u => u.id !== id);
-            renderUsers();
+        if (newRole && newRole !== currentRole) {
+            try {
+                const res = await fetch('/set-role', { // Tu endpoint para guardar
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, role: newRole })
+                });
+
+                if (res.ok) {
+                    Swal.fire('¡Actualizado!', 'La base de datos ha sido modificada.', 'success');
+                    fetchDatabase(); // Recargar datos
+                }
+            } catch (err) {
+                Swal.fire('Error', 'No se pudo guardar el cambio.', 'error');
+            }
         }
     }
 
-    function handleLogout() {
-        localStorage.clear();
-        window.location.reload();
-    }
-
-    renderUsers();
+    // Cargar al iniciar
+    fetchDatabase();
 </script>
+
 </body>
 </html>
