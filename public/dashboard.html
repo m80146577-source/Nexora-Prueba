@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+
+        .box {
+            margin-top: 50px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #3b82f6;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+// 🔒 PROTEGER (solo usuarios logueados)
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+    alert("Debes iniciar sesión");
+    window.location.href = "/";
+}
+
+// 🚫 bloquear admins aquí (opcional)
+if (user.role === "admin") {
+    window.location.href = "/admin.html";
+}
+</script>
+
+<div class="box">
+    <h1>Bienvenido 👋</h1>
+    <h2 id="username"></h2>
+
+    <p>Este es tu panel de usuario</p>
+
+    <button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<script>
+document.getElementById("username").innerText = user.username;
+
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "/";
+}
+</script>
+
+</body>
+</html>
