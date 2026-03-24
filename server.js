@@ -8,14 +8,14 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 /* =========================
-    BASE DE DATOS (RENDER)
+    BASE DE DATOS
 ========================= */
 const pool = new Pool({
     connectionString: "postgresql://nexora_db_jyn4_user:WAGlTaFlr1fWZLLkHEmieAELYl39ocWv@dpg-d70up6ea2pns73epihfg-a/nexora_db_jyn4",
     ssl: { rejectUnauthorized: false }
 });
 
-// Crear tabla automáticamente
+// Crear tabla usuarios
 pool.query(`
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -24,6 +24,26 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT
 );
 `);
+
+/* =========================
+    AGREGAR ROLE (TEMPORAL)
+========================= */
+app.get("/add-role", async (req, res) => {
+    try {
+        await pool.query("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+        res.send("✅ Columna 'role' creada");
+    } catch (err) {
+        res.send("⚠️ Puede que ya exista");
+    }
+});
+
+/* =========================
+    VER USUARIOS
+========================= */
+app.get("/users", async (req, res) => {
+    const result = await pool.query("SELECT id, username, email, role FROM users");
+    res.json(result.rows);
+});
 
 /* =========================
     REGISTRO
@@ -41,12 +61,12 @@ app.post("/register", async (req, res) => {
             [username, email, password]
         );
 
-        console.log("Usuario guardado en DB:", email);
+        console.log("Usuario guardado:", email);
 
         res.json({ success: true });
 
     } catch (err) {
-        res.json({ success: false, message: "El usuario ya existe" });
+        res.json({ success: false, message: "Usuario ya existe" });
     }
 });
 
@@ -67,8 +87,20 @@ app.post("/login", async (req, res) => {
 
     res.json({
         success: true,
-        username: result.rows[0].username
+        username: result.rows[0].username,
+        role: result.rows[0].role
     });
+});
+
+/* =========================
+    ADMIN: LISTA USUARIOS
+========================= */
+app.get("/admin/users", async (req, res) => {
+    const result = await pool.query(
+        "SELECT id, username, email, role FROM users"
+    );
+
+    res.json(result.rows);
 });
 
 /* =========================
@@ -76,14 +108,6 @@ app.post("/login", async (req, res) => {
 ========================= */
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "login.html"));
-
-    app.get("/add-role", async (req, res) => {
-    try {
-        await pool.query("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
-        res.send("✅ Columna 'role' creada");
-    } catch (err) {
-        res.send("⚠️ Puede que ya exista la columna");
-    } 
 });
 
 /* =========================
@@ -92,5 +116,5 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
-    console.log("🚀 Server con DB funcionando");
+    console.log("🚀 Server funcionando");
 });
