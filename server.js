@@ -5,7 +5,7 @@ const { Pool } = require("pg");
 const app = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "publico")));
+app.use(express.static(path.join(__dirname, "public")));
 
 /* =========================
     BASE DE DATOS (RENDER)
@@ -75,7 +75,7 @@ app.post("/login", async (req, res) => {
     RUTA PRINCIPAL
 ========================= */
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "publico", "login.html"));
+    res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
 /* =========================
