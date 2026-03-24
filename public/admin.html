@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Panel Admin</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+
+        .card {
+            background: #1e293b;
+            margin: 10px auto;
+            padding: 15px;
+            width: 300px;
+            border-radius: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: red;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>👑 Panel Admin</h1>
+
+<h2>👥 Usuarios</h2>
+<div id="users"></div>
+
+<h2>📊 Actividad</h2>
+<div id="logs"></div>
+
+<script>
+async function loadUsers() {
+    const res = await fetch("/admin/users");
+    const data = await res.json();
+
+    const div = document.getElementById("users");
+    div.innerHTML = "";
+
+    data.forEach(user => {
+        div.innerHTML += `
+            <div class="card">
+                <p><b>${user.username}</b></p>
+                <p>${user.email}</p>
+                <p>${user.role}</p>
+                <button onclick="deleteUser(${user.id})">Eliminar</button>
+            </div>
+        `;
+    });
+}
+
+async function deleteUser(id) {
+    await fetch("/delete-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+    });
+
+    loadUsers();
+    loadLogs();
+}
+
+async function loadLogs() {
+    const res = await fetch("/admin/logs");
+    const data = await res.json();
+
+    const div = document.getElementById("logs");
+    div.innerHTML = "";
+
+    data.forEach(log => {
+        div.innerHTML += `
+            <div class="card">
+                <p>${log.email}</p>
+                <p>${log.action}</p>
+                <small>${log.created_at}</small>
+            </div>
+        `;
+    });
+}
+
+loadUsers();
+loadLogs();
+</script>
+
+</body>
+</html>
