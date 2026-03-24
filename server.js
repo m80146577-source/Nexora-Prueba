@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "publico")));
 
 /* =========================
-    BASE DE DATOS
+    BASE DE DATOS (RENDER)
 ========================= */
 const pool = new Pool({
     connectionString: "postgresql://nexora_db_jyn4_user:WAGlTaFlr1fWZLLkHEmieAELYl39ocWv@dpg-d70up6ea2pns73epihfg-a/nexora_db_jyn4",
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
 `);
 
 /* =========================
-    REGISTER
+    REGISTRO
 ========================= */
 app.post("/register", async (req, res) => {
     const { username, email, password } = req.body;
@@ -40,6 +40,8 @@ app.post("/register", async (req, res) => {
             "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
             [username, email, password]
         );
+
+        console.log("Usuario guardado en DB:", email);
 
         res.json({ success: true });
 
@@ -79,6 +81,8 @@ app.get("/", (req, res) => {
 /* =========================
     SERVER
 ========================= */
-app.listen(10000, () => {
-    console.log("🚀 Server con DB funcionando en http://localhost:10000");
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+    console.log("🚀 Server con DB funcionando");
 });
